@@ -2,8 +2,8 @@ import type { Metadata } from 'next'
 import './globals.css'
 
 export const metadata: Metadata = {
-  title: 'GPS Dashboard',
-  description: 'GPS Tracking Dashboard',
+  title: 'GPS Tracker Dashboard',
+  description: 'Sessões de Rastreamento',
 }
 
 export default function RootLayout({
