@@ -6,6 +6,11 @@ interface MapComponentProps {
   locations: LocationRecord[];
 }
 
+interface PathSegment {
+  path: { lat: number; lng: number }[];
+  color: string;
+}
+
 export function MapComponent({ locations }: MapComponentProps) {
   const { center, bounds } = useMemo(() => {
     if (locations.length === 0) {
@@ -47,7 +52,9 @@ export function MapComponent({ locations }: MapComponentProps) {
     mapTypeControl: false,
     streetViewControl: false,
     fullscreenControl: false,
-    zoomControl: true,
+    zoomControl: false,
+    scaleControl: false,
+    rotateControl: false,
     styles: [
       {
         featureType: "all",
@@ -123,6 +130,76 @@ export function MapComponent({ locations }: MapComponentProps) {
     strokeWeight: 3,
   }), []);
 
+  const maxTrackSpeed = useMemo(() => {
+    return Math.max(...locations.map(loc => loc.speed));
+  }, [locations]);
+
+  const getColorForSpeed = (speed: number): string => {
+    const minSpeed = 0;
+    const maxSpeed = maxTrackSpeed * 1.1;
+    
+    const normalizedSpeed = Math.min(Math.max((speed - minSpeed) / (maxSpeed - minSpeed), 0), 1);
+    
+    const colors = [
+      { pos: 0, color: '#22c55e' },     // Verde
+      { pos: 0.2, color: '#84cc16' },   // Verde-limão
+      { pos: 0.4, color: '#eab308' },   // Amarelo
+      { pos: 0.6, color: '#f97316' },   // Laranja
+      { pos: 0.8, color: '#ea580c' },   // Laranja escuro
+      { pos: 1, color: '#dc2626' }      // Vermelho
+    ];
+    
+    let startColor, endColor;
+    for (let i = 0; i < colors.length - 1; i++) {
+      if (normalizedSpeed <= colors[i + 1].pos) {
+        startColor = colors[i];
+        endColor = colors[i + 1];
+        break;
+      }
+    }
+    
+    if (!startColor || !endColor) {
+      return colors[colors.length - 1].color;
+    }
+    
+    const colorPos = (normalizedSpeed - startColor.pos) / (endColor.pos - startColor.pos);
+    
+    const start = {
+      r: parseInt(startColor.color.slice(1, 3), 16),
+      g: parseInt(startColor.color.slice(3, 5), 16),
+      b: parseInt(startColor.color.slice(5, 7), 16)
+    };
+    
+    const end = {
+      r: parseInt(endColor.color.slice(1, 3), 16),
+      g: parseInt(endColor.color.slice(3, 5), 16),
+      b: parseInt(endColor.color.slice(5, 7), 16)
+    };
+    
+    const r = Math.round(start.r + (end.r - start.r) * colorPos);
+    const g = Math.round(start.g + (end.g - start.g) * colorPos);
+    const b = Math.round(start.b + (end.b - start.b) * colorPos);
+    
+    return `#${r.toString(16).padStart(2, '0')}${g.toString(16).padStart(2, '0')}${b.toString(16).padStart(2, '0')}`;
+  };
+
+  const pathSegments = useMemo(() => {
+    const segments: PathSegment[] = [];
+    
+    for (let i = 0; i < locations.length - 1; i++) {
+      const speed = locations[i].speed;
+      segments.push({
+        path: [
+          { lat: locations[i].latitude, lng: locations[i].longitude },
+          { lat: locations[i + 1].latitude, lng: locations[i + 1].longitude }
+        ],
+        color: getColorForSpeed(speed)
+      });
+    }
+    
+    return segments;
+  }, [locations]);
+
   return (
     <GoogleMap
       mapContainerClassName="w-full h-full"
@@ -131,13 +208,26 @@ export function MapComponent({ locations }: MapComponentProps) {
       options={mapOptions}
       onLoad={onLoad}
     >
-      {/* Linha do trajeto */}
-      <Polyline
-        path={locations.map(loc => ({ lat: loc.latitude, lng: loc.longitude }))}
-        options={polylineOptions}
-      />
+      {pathSegments.map((segment, index) => (
+        <Polyline
+          key={index}
+          path={segment.path}
+          options={{
+            strokeColor: segment.color,
+            strokeOpacity: 1.0,
+            strokeWeight: 4,
+          }}
+        />
+      ))}
 
-      {/* Marcadores de início e fim */}
+      <div className="absolute bottom-4 left-4 bg-gray-900/90 p-3 rounded-lg border border-gray-800/50">
+        <div className="flex items-center space-x-2">
+          <div className="text-xs text-gray-400">Velocidade:</div>
+          <div className="w-24 h-2 bg-gradient-to-r from-[#22c55e] via-[#eab308] to-[#dc2626] rounded" />
+          <div className="text-xs text-gray-400">{maxTrackSpeed.toFixed(0)} km/h</div>
+        </div>
+      </div>
+
       {locations.length > 0 && (
         <>
           <Marker
