@@ -1,3 +1,4 @@
+import { useState, useEffect } from 'react';
 import { LocationRecord } from '@/types/location';
 import { MapComponent } from './MapComponent';
 import { formatDistance, formatSpeed, formatDate } from '@/utils/format';
@@ -14,6 +15,17 @@ interface MapModalProps {
 
 export function MapModal({ isOpen, onClose, locations, startTime, maxSpeed, averageSpeed, distance }: MapModalProps) {
   if (!isOpen) return null;
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
 
   return (
     <div className="fixed inset-0 bg-black/90 backdrop-blur-md z-[100]">
@@ -77,32 +89,36 @@ export function MapModal({ isOpen, onClose, locations, startTime, maxSpeed, aver
             </div>
 
             {/* Side Panel */}
+            {!isMobile &&
+            (            
             <div className="w-full md:w-80 bg-neutral-800/80 rounded-xl border border-primary-900/50 flex flex-col min-h-0">
-              <h4 className="text-lg font-semibold text-white p-4 border-b border-primary-900/50">
-                Pontos do Trajeto
-              </h4>
-              <div className="flex-1 p-4 modal-sidebar scroll-container">
-                <div className="space-y-3">
-                  {locations.map((location, index) => (
-                    <div 
-                      key={`${location.guid}-${index}`}
-                      className="bg-neutral-900/50 rounded-lg p-3 border border-primary-900/50"
-                    >
-                      <p className="text-sm text-gray-300">Ponto {index + 1}</p>
-                      <p className="text-xs text-gray-400 mt-1">
-                        Lat: {location.latitude.toFixed(6)}
-                      </p>
-                      <p className="text-xs text-gray-400">
-                        Long: {location.longitude.toFixed(6)}
-                      </p>
-                      <p className="text-xs text-primary-400 mt-1">
-                        {formatSpeed(location.speed)}
-                      </p>
-                    </div>
-                  ))}
+                <h4 className="text-lg font-semibold text-white p-4 border-b border-primary-900/50">
+                  Pontos do Trajeto
+                </h4>
+                <div className="flex-1 p-4 modal-sidebar scroll-container">
+                  <div className="space-y-3">
+                    {locations.map((location, index) => (
+                      <div 
+                        key={`${location.guid}-${index}`}
+                        className="bg-neutral-900/50 rounded-lg p-3 border border-primary-900/50"
+                      >
+                        <p className="text-sm text-gray-300">Ponto {index + 1}</p>
+                        <p className="text-xs text-gray-400 mt-1">
+                          Lat: {location.latitude.toFixed(6)}
+                        </p>
+                        <p className="text-xs text-gray-400">
+                          Long: {location.longitude.toFixed(6)}
+                        </p>
+                        <p className="text-xs text-primary-400 mt-1">
+                          {formatSpeed(location.speed)}
+                        </p>
+                      </div>
+                    ))}
+                  </div>
                 </div>
               </div>
-            </div>
+              )
+            }
           </div>
         </div>
       </div>
