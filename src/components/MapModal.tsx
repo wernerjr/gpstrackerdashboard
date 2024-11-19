@@ -66,24 +66,24 @@ export function MapModal({ isOpen, onClose, locations, startTime, maxSpeed, aver
               {/* Stats abaixo do mapa */}
               <div className="bg-neutral-800/80 rounded-xl border border-primary-900/50 p-4">
                 <div className="grid grid-cols-3 gap-4">
-                  <div className="flex flex-col items-center justify-center">
-                    <p className="text-gray-400 text-sm">Velocidade Média</p>
-                    <p className="text-primary-400 text-xl font-bold mt-1">
-                      {formatSpeed(averageSpeed)}
-                    </p>
-                  </div>
-                  <div className="flex flex-col items-center justify-center border-x border-gray-700/50">
-                    <p className="text-gray-400 text-sm">Velocidade Máxima</p>
-                    <p className="text-primary-400 text-xl font-bold mt-1">
-                      {formatSpeed(maxSpeed)}
-                    </p>
-                  </div>
-                  <div className="flex flex-col items-center justify-center">
-                    <p className="text-gray-400 text-sm">Distância Total</p>
-                    <p className="text-primary-400 text-xl font-bold mt-1">
-                      {formatDistance(distance)}
-                    </p>
-                  </div>
+                    <div className="flex flex-col justify-between">
+                        <p className="text-gray-400 text-sm">Velocidade Média</p>
+                        <p className="text-primary-400 text-lg font-semibold">
+                        {formatSpeed(averageSpeed)}
+                        </p>
+                    </div>
+                    <div className="flex flex-col justify-between">
+                        <p className="text-gray-400 text-sm">Velocidade Máxima</p>
+                        <p className="text-primary-400 text-lg font-semibold">
+                        {formatSpeed(maxSpeed)}
+                        </p>
+                    </div>
+                    <div className="flex flex-col justify-between">
+                        <p className="text-gray-400 text-sm">Distância Total</p>
+                        <p className="text-primary-400 text-lg font-semibold">
+                        {formatDistance(distance)}
+                        </p>
+                    </div>
                 </div>
               </div>
             </div>
