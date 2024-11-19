@@ -1,145 +1,150 @@
 import { LocationRecord } from '@/types/location';
 import { GoogleMap, Polyline, Marker } from '@react-google-maps/api';
-import { useCallback } from 'react';
+import { useMemo, useCallback } from 'react';
 
 interface MapComponentProps {
   locations: LocationRecord[];
 }
 
-const mapContainerStyle = {
-  width: '100%',
-  height: '500px',
-  borderRadius: '0.5rem'
-};
-
-const mapOptions = {
-  mapTypeId: 'roadmap',
-  mapTypeControl: false,
-  streetViewControl: false,
-  fullscreenControl: false,
-  zoomControl: true,
-  styles: [
-    { elementType: "geometry", stylers: [{ color: "#242f3e" }] },
-    { elementType: "labels.text.stroke", stylers: [{ color: "#242f3e" }] },
-    { elementType: "labels.text.fill", stylers: [{ color: "#746855" }] },
-    {
-      featureType: "administrative.locality",
-      elementType: "labels.text.fill",
-      stylers: [{ color: "#d59563" }],
-    },
-    {
-      featureType: "road",
-      elementType: "geometry",
-      stylers: [{ color: "#38414e" }],
-    },
-    {
-      featureType: "road",
-      elementType: "geometry.stroke",
-      stylers: [{ color: "#212a37" }],
-    },
-    {
-      featureType: "road",
-      elementType: "labels.text.fill",
-      stylers: [{ color: "#9ca5b3" }],
-    },
-    {
-      featureType: "road.highway",
-      elementType: "geometry",
-      stylers: [{ color: "#746855" }],
-    },
-    {
-      featureType: "road.highway",
-      elementType: "geometry.stroke",
-      stylers: [{ color: "#1f2835" }],
-    },
-    {
-      featureType: "road.highway",
-      elementType: "labels.text.fill",
-      stylers: [{ color: "#f3d19c" }],
-    },
-    {
-      featureType: "water",
-      elementType: "geometry",
-      stylers: [{ color: "#17263c" }],
-    },
-    {
-      featureType: "water",
-      elementType: "labels.text.fill",
-      stylers: [{ color: "#515c6d" }],
-    },
-    {
-      featureType: "water",
-      elementType: "labels.text.stroke",
-      stylers: [{ color: "#17263c" }],
-    },
-  ],
-};
-
 export function MapComponent({ locations }: MapComponentProps) {
-  const coordinates = locations.map(loc => ({
-    lat: loc.latitude,
-    lng: loc.longitude
-  }));
+  const center = useMemo(() => {
+    if (locations.length === 0) return { lat: 0, lng: 0 };
+    const midPoint = Math.floor(locations.length / 2);
+    return {
+      lat: locations[midPoint].latitude,
+      lng: locations[midPoint].longitude
+    };
+  }, [locations]);
 
-  const center = coordinates[0] || { lat: -23.550520, lng: -46.633308 };
+  const mapOptions = useMemo(() => ({
+    mapTypeId: 'roadmap',
+    mapTypeControl: false,
+    streetViewControl: false,
+    fullscreenControl: false,
+    zoomControl: true,
+    styles: [
+      {
+        featureType: "all",
+        elementType: "labels.text.fill",
+        stylers: [{ color: "#ffffff" }]
+      },
+      {
+        featureType: "all",
+        elementType: "labels.text.stroke",
+        stylers: [{ color: "#000000" }, { lightness: 13 }]
+      },
+      {
+        featureType: "administrative",
+        elementType: "geometry.fill",
+        stylers: [{ color: "#000000" }]
+      },
+      {
+        featureType: "administrative",
+        elementType: "geometry.stroke",
+        stylers: [{ color: "#144b53" }, { lightness: 14 }, { weight: 1.4 }]
+      },
+      {
+        featureType: "landscape",
+        elementType: "all",
+        stylers: [{ color: "#08304b" }]
+      },
+      {
+        featureType: "poi",
+        elementType: "geometry",
+        stylers: [{ color: "#0c4152" }, { lightness: 5 }]
+      },
+      {
+        featureType: "road.highway",
+        elementType: "geometry.fill",
+        stylers: [{ color: "#000000" }]
+      },
+      {
+        featureType: "road.highway",
+        elementType: "geometry.stroke",
+        stylers: [{ color: "#0b434f" }, { lightness: 25 }]
+      },
+      {
+        featureType: "road.arterial",
+        elementType: "geometry.fill",
+        stylers: [{ color: "#000000" }]
+      },
+      {
+        featureType: "road.arterial",
+        elementType: "geometry.stroke",
+        stylers: [{ color: "#0b3d51" }, { lightness: 16 }]
+      },
+      {
+        featureType: "road.local",
+        elementType: "geometry",
+        stylers: [{ color: "#000000" }]
+      },
+      {
+        featureType: "transit",
+        elementType: "all",
+        stylers: [{ color: "#146474" }]
+      },
+      {
+        featureType: "water",
+        elementType: "all",
+        stylers: [{ color: "#021019" }]
+      },
+    ],
+  }), []);
 
-  const onLoad = useCallback((map: google.maps.Map) => {
-    const bounds = new google.maps.LatLngBounds();
-    coordinates.forEach(coord => bounds.extend(coord));
-    map.fitBounds(bounds);
-  }, [coordinates]);
+  const polylineOptions = useMemo(() => ({
+    strokeColor: '#3b82f6',
+    strokeOpacity: 0.8,
+    strokeWeight: 3,
+  }), []);
 
   return (
-    <div className="w-full h-[500px] relative">
-      <GoogleMap
-        mapContainerStyle={mapContainerStyle}
-        center={center}
-        zoom={15}
-        options={mapOptions}
-        onLoad={onLoad}
-      >
-        <Polyline
-          path={coordinates}
-          options={{
-            strokeColor: '#3b82f6',
-            strokeOpacity: 1.0,
-            strokeWeight: 4,
-            geodesic: true
-          }}
-        />
-        <Marker 
-          position={coordinates[0]} 
-          label={{
-            text: "Início",
-            className: "text-white font-semibold",
-            color: "white"
-          }}
-          icon={{
-            path: google.maps.SymbolPath.CIRCLE,
-            scale: 8,
-            fillColor: "#22c55e",
-            fillOpacity: 1,
-            strokeWeight: 2,
-            strokeColor: "#ffffff",
-          }}
-        />
-        <Marker 
-          position={coordinates[coordinates.length - 1]} 
-          label={{
-            text: "Fim",
-            className: "text-white font-semibold",
-            color: "white"
-          }}
-          icon={{
-            path: google.maps.SymbolPath.CIRCLE,
-            scale: 8,
-            fillColor: "#ef4444",
-            fillOpacity: 1,
-            strokeWeight: 2,
-            strokeColor: "#ffffff",
-          }}
-        />
-      </GoogleMap>
-    </div>
+    <GoogleMap
+      mapContainerClassName="w-full h-full"
+      center={center}
+      zoom={14}
+      options={mapOptions}
+    >
+      {/* Linha do trajeto */}
+      <Polyline
+        path={locations.map(loc => ({ lat: loc.latitude, lng: loc.longitude }))}
+        options={polylineOptions}
+      />
+
+      {/* Marcadores de início e fim */}
+      {locations.length > 0 && (
+        <>
+          <Marker
+            position={{
+              lat: locations[0].latitude,
+              lng: locations[0].longitude
+            }}
+            icon={{
+              path: google.maps.SymbolPath.CIRCLE,
+              scale: 8,
+              fillColor: '#22c55e',
+              fillOpacity: 1,
+              strokeColor: '#ffffff',
+              strokeWeight: 2,
+            }}
+            title="Início"
+          />
+          <Marker
+            position={{
+              lat: locations[locations.length - 1].latitude,
+              lng: locations[locations.length - 1].longitude
+            }}
+            icon={{
+              path: google.maps.SymbolPath.CIRCLE,
+              scale: 8,
+              fillColor: '#ef4444',
+              fillOpacity: 1,
+              strokeColor: '#ffffff',
+              strokeWeight: 2,
+            }}
+            title="Fim"
+          />
+        </>
+      )}
+    </GoogleMap>
   );
 } 

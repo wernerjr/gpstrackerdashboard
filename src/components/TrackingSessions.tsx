@@ -53,8 +53,8 @@ export function TrackingSessions({ onLoadingChange }: TrackingSessionsProps) {
           startTime: sortedLocations[0].timestamp,
           endTime: sortedLocations[sortedLocations.length - 1].timestamp,
           distance: totalDistance,
-          maxSpeed: maxSpeed * 3.6, // Convertendo para km/h
-          averageSpeed: (totalSpeed / sortedLocations.length) * 3.6 // Convertendo para km/h
+          maxSpeed: maxSpeed, // Convertendo para km/h
+          averageSpeed: (totalSpeed / sortedLocations.length) // Convertendo para km/h
         };
       })
       .sort((a, b) => b.startTime - a.startTime);
@@ -119,10 +119,12 @@ export function TrackingSessions({ onLoadingChange }: TrackingSessionsProps) {
   }
 
   return (
-    <div className="space-y-6">
-      {sessions.map((session, index) => (
-        <SessionCard key={index} session={session} />
-      ))}
+    <div className="h-[calc(100%-4rem)]">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 overflow-y-auto h-full pr-2 scrollbar-modern">
+        {sessions.map((session) => (
+          <SessionCard key={session.startTime} session={session} />
+        ))}
+      </div>
     </div>
   );
 } 

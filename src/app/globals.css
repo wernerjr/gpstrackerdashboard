@@ -1,3 +1,17 @@
 @tailwind base;
 @tailwind components;
-@tailwind utilities; 
+@tailwind utilities;
+
+@layer utilities {
+  .scrollbar-modern {
+    @apply scrollbar-thin 
+           scrollbar-track-gray-900/30 
+           scrollbar-thumb-gray-600/50 
+           hover:scrollbar-thumb-gray-600/80;
+  }
+}
+
+/* Estilo para containers com scroll */
+.scroll-container {
+  @apply overflow-auto scrollbar-modern;
+} 

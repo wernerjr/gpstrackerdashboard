@@ -82,6 +82,10 @@ export function SessionCard({ session }: SessionCardProps) {
         isOpen={isMapOpen}
         onClose={() => setIsMapOpen(false)}
         locations={session.locations}
+        startTime={session.startTime}
+        maxSpeed={session.maxSpeed}
+        averageSpeed={session.averageSpeed}
+        distance={session.distance}
       />
     </>
   );

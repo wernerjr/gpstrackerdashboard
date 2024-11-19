@@ -10,7 +10,7 @@ export function LocationCard({ location }: LocationCardProps) {
   };
 
   const formatSpeed = (speed: number) => {
-    return `${(speed * 3.6).toFixed(1)} km/h`; // Convertendo m/s para km/h
+    return `${(speed).toFixed(1)} km/h`; // Convertendo m/s para km/h
   };
 
   const formatCoordinates = (value: number) => {
