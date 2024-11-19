@@ -18,7 +18,7 @@ export default function Dashboard() {
         <Header onDataChange={handleDataChange} />
         <div className="container mx-auto px-4 py-8 mt-16">
           <h1 className="text-3xl font-bold text-white mb-8">
-            GPS Tracking Dashboard
+            Sessões de Rastreamento
           </h1>
           
           <div className="scroll-container">

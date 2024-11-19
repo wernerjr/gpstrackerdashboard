@@ -21,29 +21,40 @@ export function MapComponent({ locations }: MapComponentProps) {
     }
 
     const bounds = new google.maps.LatLngBounds();
+    
     locations.forEach(location => {
-      bounds.extend({ lat: location.latitude, lng: location.longitude });
+      bounds.extend({
+        lat: location.latitude,
+        lng: location.longitude
+      });
     });
 
-    const center = {
-      lat: (bounds.getNorthEast().lat() + bounds.getSouthWest().lat()) / 2,
-      lng: (bounds.getNorthEast().lng() + bounds.getSouthWest().lng()) / 2
-    };
+    const ne = bounds.getNorthEast();
+    const sw = bounds.getSouthWest();
+    const latDiff = (ne.lat() - sw.lat()) * 0.1;
+    const lngDiff = (ne.lng() - sw.lng()) * 0.1;
+    
+    bounds.extend({
+      lat: ne.lat() + latDiff,
+      lng: ne.lng() + lngDiff
+    });
+    bounds.extend({
+      lat: sw.lat() - latDiff,
+      lng: sw.lng() - lngDiff
+    });
 
-    return { center, bounds };
+    return {
+      center: {
+        lat: (bounds.getNorthEast().lat() + bounds.getSouthWest().lat()) / 2,
+        lng: (bounds.getNorthEast().lng() + bounds.getSouthWest().lng()) / 2
+      },
+      bounds
+    };
   }, [locations]);
 
   const onLoad = useCallback((map: google.maps.Map) => {
     if (bounds) {
-      map.fitBounds(bounds, {
-        padding: { top: 60, right: 60, bottom: 60, left: 60 }
-      });
-
-      google.maps.event.addListenerOnce(map, 'bounds_changed', () => {
-        if (map.getZoom()! > 16) {
-          map.setZoom(16);
-        }
-      });
+      map.fitBounds(bounds);
     }
   }, [bounds]);
 
@@ -53,8 +64,6 @@ export function MapComponent({ locations }: MapComponentProps) {
     streetViewControl: false,
     fullscreenControl: false,
     zoomControl: false,
-    scaleControl: false,
-    rotateControl: false,
     styles: [
       {
         featureType: "all",
@@ -131,10 +140,10 @@ export function MapComponent({ locations }: MapComponentProps) {
   }), []);
 
   const maxTrackSpeed = useMemo(() => {
-    return Math.max(...locations.map(loc => loc.speed));
+    return Math.max(...locations.map(loc => loc.speed * 3.6));
   }, [locations]);
 
-  const getColorForSpeed = (speed: number): string => {
+  const getColorForSpeed = useCallback((speed: number): string => {
     const minSpeed = 0;
     const maxSpeed = maxTrackSpeed * 1.1;
     
@@ -142,11 +151,13 @@ export function MapComponent({ locations }: MapComponentProps) {
     
     const colors = [
       { pos: 0, color: '#22c55e' },     // Verde
-      { pos: 0.2, color: '#84cc16' },   // Verde-limão
-      { pos: 0.4, color: '#eab308' },   // Amarelo
+      { pos: 0.15, color: '#16a34a' },  // Verde escuro
+      { pos: 0.3, color: '#84cc16' },   // Verde-limão
+      { pos: 0.45, color: '#eab308' },  // Amarelo
       { pos: 0.6, color: '#f97316' },   // Laranja
-      { pos: 0.8, color: '#ea580c' },   // Laranja escuro
-      { pos: 1, color: '#dc2626' }      // Vermelho
+      { pos: 0.75, color: '#ea580c' },  // Laranja escuro
+      { pos: 0.9, color: '#dc2626' },   // Vermelho
+      { pos: 1, color: '#991b1b' }      // Vermelho escuro
     ];
     
     let startColor, endColor;
@@ -181,13 +192,13 @@ export function MapComponent({ locations }: MapComponentProps) {
     const b = Math.round(start.b + (end.b - start.b) * colorPos);
     
     return `#${r.toString(16).padStart(2, '0')}${g.toString(16).padStart(2, '0')}${b.toString(16).padStart(2, '0')}`;
-  };
+  }, [maxTrackSpeed]);
 
   const pathSegments = useMemo(() => {
     const segments: PathSegment[] = [];
     
     for (let i = 0; i < locations.length - 1; i++) {
-      const speed = locations[i].speed;
+      const speed = locations[i].speed * 3.6;
       segments.push({
         path: [
           { lat: locations[i].latitude, lng: locations[i].longitude },
@@ -198,7 +209,22 @@ export function MapComponent({ locations }: MapComponentProps) {
     }
     
     return segments;
-  }, [locations]);
+  }, [locations, getColorForSpeed]);
+
+  const SpeedLegend = () => (
+    <div className="absolute bottom-4 left-4 bg-neutral-900/90 p-3 rounded-lg border border-primary-900/50">
+      <div className="space-y-2">
+        <div className="text-xs text-gray-300 font-medium">Velocidade</div>
+        <div className="flex items-center space-x-2">
+          <div className="h-2 w-32 rounded bg-gradient-to-r from-[#22c55e] via-[#eab308] to-[#991b1b]" />
+          <div className="flex justify-between text-xs text-gray-400 w-full">
+            <span>0</span>
+            <span>{Math.round(maxTrackSpeed)} km/h</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
 
   return (
     <GoogleMap
@@ -219,14 +245,6 @@ export function MapComponent({ locations }: MapComponentProps) {
           }}
         />
       ))}
-
-      <div className="absolute bottom-4 left-4 bg-gray-900/90 p-3 rounded-lg border border-gray-800/50">
-        <div className="flex items-center space-x-2">
-          <div className="text-xs text-gray-400">Velocidade:</div>
-          <div className="w-24 h-2 bg-gradient-to-r from-[#22c55e] via-[#eab308] to-[#dc2626] rounded" />
-          <div className="text-xs text-gray-400">{maxTrackSpeed.toFixed(0)} km/h</div>
-        </div>
-      </div>
 
       {locations.length > 0 && (
         <>
@@ -253,7 +271,7 @@ export function MapComponent({ locations }: MapComponentProps) {
             icon={{
               path: google.maps.SymbolPath.CIRCLE,
               scale: 8,
-              fillColor: '#ef4444',
+              fillColor: '#991b1b',
               fillOpacity: 1,
               strokeColor: '#ffffff',
               strokeWeight: 2,
@@ -262,6 +280,8 @@ export function MapComponent({ locations }: MapComponentProps) {
           />
         </>
       )}
+
+      <SpeedLegend />
     </GoogleMap>
   );
 } 
