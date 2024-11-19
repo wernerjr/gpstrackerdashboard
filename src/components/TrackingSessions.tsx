@@ -7,9 +7,14 @@ import { LocationRecord, TrackingSession } from '@/types/location';
 import { SessionCard } from './SessionCard';
 import { Loading } from './Loading';
 
-export function TrackingSessions() {
+interface TrackingSessionsProps {
+  onLoadingChange?: (loading: boolean) => void;
+}
+
+export function TrackingSessions({ onLoadingChange }: TrackingSessionsProps) {
   const [sessions, setSessions] = useState<TrackingSession[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   const processLocations = useCallback((locations: LocationRecord[]): TrackingSession[] => {
     const sessionMap = new Map<string, LocationRecord[]>();
@@ -55,23 +60,8 @@ export function TrackingSessions() {
       .sort((a, b) => b.startTime - a.startTime);
   }, []);
 
-  const calculateDistance = (lat1: number, lon1: number, lat2: number, lon2: number): number => {
-    const R = 6371e3;
-    const φ1 = lat1 * Math.PI/180;
-    const φ2 = lat2 * Math.PI/180;
-    const Δφ = (lat2-lat1) * Math.PI/180;
-    const Δλ = (lon2-lon1) * Math.PI/180;
-
-    const a = Math.sin(Δφ/2) * Math.sin(Δφ/2) +
-            Math.cos(φ1) * Math.cos(φ2) *
-            Math.sin(Δλ/2) * Math.sin(Δλ/2);
-    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
-
-    return R * c;
-  };
-
   useEffect(() => {
-    async function fetchLocations() {
+    const fetchLocations = async () => {
       try {
         setLoading(true);
         const locationsRef = collection(db, 'locations');
@@ -89,15 +79,40 @@ export function TrackingSessions() {
         
         const processedSessions = processLocations(locationsData);
         setSessions(processedSessions);
-      } catch (error) {
-        console.error('Erro ao buscar localizações:', error);
+      } catch (err) {
+        console.error('Erro ao carregar dados:', err);
+        setError('Erro ao carregar os dados. Por favor, tente novamente.');
       } finally {
         setLoading(false);
+        onLoadingChange?.(false);
       }
-    }
+    };
 
-    fetchLocations();
-  }, [processLocations]);
+    fetchLocations().catch(console.error);
+  }, [processLocations, onLoadingChange]);
+
+  const calculateDistance = (lat1: number, lon1: number, lat2: number, lon2: number): number => {
+    const R = 6371e3; // raio da Terra em metros
+    const φ1 = lat1 * Math.PI/180;
+    const φ2 = lat2 * Math.PI/180;
+    const Δφ = (lat2-lat1) * Math.PI/180;
+    const Δλ = (lon2-lon1) * Math.PI/180;
+
+    const a = Math.sin(Δφ/2) * Math.sin(Δφ/2) +
+            Math.cos(φ1) * Math.cos(φ2) *
+            Math.sin(Δλ/2) * Math.sin(Δλ/2);
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+
+    return R * c; // em metros
+  };
+
+  if (error) {
+    return (
+      <div className="text-red-500 text-center p-4">
+        {error}
+      </div>
+    );
+  }
 
   if (loading) {
     return <Loading />;
