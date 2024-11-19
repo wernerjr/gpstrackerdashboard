@@ -5,13 +5,16 @@ import { collection, query, orderBy, getDocs, deleteDoc, doc } from 'firebase/fi
 import { db } from '@/lib/firebase';
 import { LocationRecord } from '@/types/location';
 
-export function Header() {
+interface HeaderProps {
+  onDataChange: () => void;
+}
+
+export function Header({ onDataChange }: HeaderProps) {
   const [isRemoving, setIsRemoving] = useState(false);
 
   const removeSessionsWithFewRecords = async () => {
     setIsRemoving(true);
     try {
-      // Buscar todos os registros
       const locationsRef = collection(db, 'locations');
       const q = query(locationsRef, orderBy('timestamp', 'desc'));
       const querySnapshot = await getDocs(q);
@@ -21,7 +24,6 @@ export function Header() {
         locations.push({ ...doc.data(), docId: doc.id } as LocationRecord & { docId: string });
       });
 
-      // Agrupar por trackingId
       const sessionMap = new Map<string, (LocationRecord & { docId: string })[]>();
       locations.forEach(location => {
         const sessionId = location.trackingId || location.guid;
@@ -29,26 +31,17 @@ export function Header() {
         sessionMap.set(sessionId, [...existingLocations, location as LocationRecord & { docId: string }]);
       });
 
-      // Identificar registros com menos de 10 localizações
       const docsToRemove = Array.from(sessionMap.entries())
         .filter(([_, locs]) => locs.length < 10)
         .flatMap(([_, locs]) => locs.map(loc => loc.docId));
 
-      console.log(`Encontrados ${docsToRemove.length} registros para remover (de sessões com menos de 10 localizações)`);
-
-      // Remover do Firebase
-      let removedCount = 0;
       for (const docId of docsToRemove) {
         await deleteDoc(doc(db, 'locations', docId));
-        removedCount++;
-        console.log(`Registro removido: ${docId} (${removedCount}/${docsToRemove.length})`);
       }
 
-      alert(`${removedCount} registros foram removidos de sessões com menos de 10 localizações`);
-      window.location.reload(); // Recarrega a página para atualizar os dados
+      onDataChange();
     } catch (error) {
       console.error('Erro ao remover registros:', error);
-      alert('Erro ao remover registros. Verifique o console para mais detalhes.');
     } finally {
       setIsRemoving(false);
     }
