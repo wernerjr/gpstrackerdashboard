@@ -119,8 +119,8 @@ export function TrackingSessions({ onLoadingChange }: TrackingSessionsProps) {
   }
 
   return (
-    <div className="h-[calc(100%-4rem)]">
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 overflow-y-auto h-full pr-2 scrollbar-modern">
+    <div className="h-[calc(100vh-12rem)] modern-scroll">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 px-1">
         {sessions.map((session) => (
           <SessionCard key={session.startTime} session={session} />
         ))}
