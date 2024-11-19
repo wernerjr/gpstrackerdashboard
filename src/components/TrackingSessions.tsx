@@ -80,7 +80,11 @@ export function TrackingSessions() {
         
         const locationsData: LocationRecord[] = [];
         querySnapshot.forEach((doc) => {
-          locationsData.push({ ...doc.data(), id: doc.id } as LocationRecord);
+          const data = doc.data();
+          locationsData.push({
+            ...data,
+            trackingId: data.trackingId || null
+          } as LocationRecord);
         });
         
         const processedSessions = processLocations(locationsData);
