@@ -44,28 +44,31 @@ export function MapModal({ isOpen, onClose, locations, startTime, maxSpeed, aver
 
           {/* Content */}
           <div className="flex-1 flex flex-col md:flex-row gap-4 p-4 md:p-6 min-h-0">
-            {/* Mapa */}
-            <div className="flex-1 rounded-xl overflow-hidden border border-gray-800/50 relative min-h-[400px] md:min-h-0">
-              <MapComponent locations={locations} />
+            {/* Mapa e Stats Container */}
+            <div className="flex-1 flex flex-col gap-4">
+              {/* Mapa */}
+              <div className="flex-1 rounded-xl overflow-hidden border border-gray-800/50 relative min-h-[400px] md:min-h-0">
+                <MapComponent locations={locations} />
+              </div>
               
-              {/* Stats Overlay */}
-              <div className="absolute bottom-4 left-4 right-4 bg-gray-900/90 backdrop-blur-sm rounded-lg border border-gray-800/50 p-4">
+              {/* Stats abaixo do mapa */}
+              <div className="bg-gray-800/30 rounded-xl border border-gray-800/50 p-4">
                 <div className="grid grid-cols-3 gap-4">
-                  <div>
+                  <div className="flex flex-col items-center justify-center">
                     <p className="text-gray-400 text-sm">Velocidade Média</p>
-                    <p className="text-blue-400 text-lg font-bold">
+                    <p className="text-blue-400 text-xl font-bold mt-1">
                       {formatSpeed(averageSpeed)}
                     </p>
                   </div>
-                  <div>
+                  <div className="flex flex-col items-center justify-center border-x border-gray-700/50">
                     <p className="text-gray-400 text-sm">Velocidade Máxima</p>
-                    <p className="text-blue-400 text-lg font-bold">
+                    <p className="text-blue-400 text-xl font-bold mt-1">
                       {formatSpeed(maxSpeed)}
                     </p>
                   </div>
-                  <div>
+                  <div className="flex flex-col items-center justify-center">
                     <p className="text-gray-400 text-sm">Distância Total</p>
-                    <p className="text-blue-400 text-lg font-bold">
+                    <p className="text-blue-400 text-xl font-bold mt-1">
                       {formatDistance(distance)}
                     </p>
                   </div>

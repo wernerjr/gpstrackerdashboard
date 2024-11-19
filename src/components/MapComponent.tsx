@@ -7,14 +7,40 @@ interface MapComponentProps {
 }
 
 export function MapComponent({ locations }: MapComponentProps) {
-  const center = useMemo(() => {
-    if (locations.length === 0) return { lat: 0, lng: 0 };
-    const midPoint = Math.floor(locations.length / 2);
-    return {
-      lat: locations[midPoint].latitude,
-      lng: locations[midPoint].longitude
+  const { center, bounds } = useMemo(() => {
+    if (locations.length === 0) {
+      return {
+        center: { lat: 0, lng: 0 },
+        bounds: null
+      };
+    }
+
+    const bounds = new google.maps.LatLngBounds();
+    locations.forEach(location => {
+      bounds.extend({ lat: location.latitude, lng: location.longitude });
+    });
+
+    const center = {
+      lat: (bounds.getNorthEast().lat() + bounds.getSouthWest().lat()) / 2,
+      lng: (bounds.getNorthEast().lng() + bounds.getSouthWest().lng()) / 2
     };
+
+    return { center, bounds };
   }, [locations]);
+
+  const onLoad = useCallback((map: google.maps.Map) => {
+    if (bounds) {
+      map.fitBounds(bounds, {
+        padding: { top: 60, right: 60, bottom: 60, left: 60 }
+      });
+
+      google.maps.event.addListenerOnce(map, 'bounds_changed', () => {
+        if (map.getZoom()! > 16) {
+          map.setZoom(16);
+        }
+      });
+    }
+  }, [bounds]);
 
   const mapOptions = useMemo(() => ({
     mapTypeId: 'roadmap',
@@ -103,6 +129,7 @@ export function MapComponent({ locations }: MapComponentProps) {
       center={center}
       zoom={14}
       options={mapOptions}
+      onLoad={onLoad}
     >
       {/* Linha do trajeto */}
       <Polyline
