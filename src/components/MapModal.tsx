@@ -14,7 +14,6 @@ interface MapModalProps {
 }
 
 export function MapModal({ isOpen, onClose, locations, startTime, maxSpeed, averageSpeed, distance }: MapModalProps) {
-  if (!isOpen) return null;
   const [isMobile, setIsMobile] = useState(false);
 
   useEffect(() => {
@@ -26,6 +25,8 @@ export function MapModal({ isOpen, onClose, locations, startTime, maxSpeed, aver
     window.addEventListener('resize', checkMobile);
     return () => window.removeEventListener('resize', checkMobile);
   }, []);
+
+  if (!isOpen) return null;
 
   return (
     <div className="fixed inset-0 bg-black/90 backdrop-blur-md z-[100]">
