@@ -17,7 +17,11 @@ interface ProcessedSession {
   locations: LocationRecord[];
 }
 
-export function TrackingSessions() {
+interface TrackingSessionsProps {
+  onLoadingChange: (isLoading: boolean) => void;
+}
+
+export function TrackingSessions({ onLoadingChange }: TrackingSessionsProps) {
   const [sessions, setSessions] = useState<ProcessedSession[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -80,6 +84,7 @@ export function TrackingSessions() {
   useEffect(() => {
     async function fetchLocations() {
       try {
+        setLoading(true);
         const locationsRef = collection(db, 'locations');
         const q = query(locationsRef, orderBy('timestamp', 'desc'));
         const querySnapshot = await getDocs(q);
@@ -95,20 +100,21 @@ export function TrackingSessions() {
         console.error('Erro ao buscar localizações:', error);
       } finally {
         setLoading(false);
+        onLoadingChange(false);
       }
     }
 
     fetchLocations();
-  }, []);
+  }, [onLoadingChange]);
 
   if (loading) {
     return <Loading />;
   }
 
   return (
-    <div className="space-y-4">
-      {sessions.map((session) => (
-        <SessionCard key={session.guid} session={session} />
+    <div className="space-y-6">
+      {sessions.map((session, index) => (
+        <SessionCard key={index} session={session} />
       ))}
     </div>
   );
