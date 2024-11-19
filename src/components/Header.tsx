@@ -25,12 +25,12 @@ export function Header({ onDataChange }: HeaderProps) {
   };
 
   return (
-    <header className="fixed top-0 left-0 right-0 bg-gray-900/80 backdrop-blur-md border-b border-gray-800/50 z-50">
+    <header className="fixed top-0 left-0 right-0 bg-neutral-900/90 backdrop-blur-md border-b border-primary-900/50 z-50">
       <div className="container mx-auto px-4">
         <div className="h-16 flex items-center justify-between">
           {/* Logo e Título */}
           <div className="flex items-center space-x-3">
-            <div className="bg-blue-500 p-2 rounded-lg">
+            <div className="bg-primary-600 p-2 rounded-lg">
               <svg 
                 className="w-5 h-5 text-white" 
                 fill="none" 
@@ -52,7 +52,7 @@ export function Header({ onDataChange }: HeaderProps) {
               </svg>
             </div>
             <h1 className="text-lg font-semibold text-white">
-              GPS TrackerDashboard
+              GPS Dashboard
             </h1>
           </div>
 
@@ -60,7 +60,7 @@ export function Header({ onDataChange }: HeaderProps) {
           <button
             onClick={handleCleanSessions}
             disabled={isLoading}
-            className="p-2 text-gray-400 hover:text-white hover:bg-gray-800/50 rounded-lg transition-colors relative group"
+            className="p-2 text-gray-400 hover:text-white hover:bg-primary-900/50 rounded-lg transition-colors relative group"
             title="Remover sessões incompletas"
           >
             {isLoading ? (

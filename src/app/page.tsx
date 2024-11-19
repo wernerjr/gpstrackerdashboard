@@ -13,18 +13,20 @@ export default function Dashboard() {
   };
 
   return (
-    <div className="h-screen overflow-hidden bg-gray-950">
+    <div className="min-h-screen bg-neutral-950">
       <LoadScript googleMapsApiKey={process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY || ''}>
         <Header onDataChange={handleDataChange} />
-        <main className="container mx-auto px-4 h-[calc(100vh-4rem)] pt-20">
-          <h1 className="text-2xl font-bold text-white mb-6">
-            Sessões de Rastreamento
+        <div className="container mx-auto px-4 py-8 mt-16">
+          <h1 className="text-3xl font-bold text-white mb-8">
+            GPS Tracking Dashboard
           </h1>
           
-          <TrackingSessions 
-            key={refreshKey} 
-          />
-        </main>
+          <div className="scroll-container">
+            <TrackingSessions 
+              key={refreshKey} 
+            />
+          </div>
+        </div>
       </LoadScript>
     </div>
   );

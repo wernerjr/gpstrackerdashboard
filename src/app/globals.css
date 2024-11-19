@@ -2,6 +2,12 @@
 @tailwind components;
 @tailwind utilities;
 
+@layer base {
+  body {
+    @apply bg-neutral-950;
+  }
+}
+
 @layer utilities {
   .scrollbar-modern {
     @apply scrollbar-thin 

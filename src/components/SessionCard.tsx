@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { MapModal } from './MapModal';
 import { TrackingSession } from '@/types/location';
+import { formatDate, formatSpeed, formatDistance, formatDuration } from '@/utils/format';
 
 interface SessionCardProps {
   session: TrackingSession;
@@ -11,69 +12,41 @@ interface SessionCardProps {
 export function SessionCard({ session }: SessionCardProps) {
   const [isMapOpen, setIsMapOpen] = useState(false);
 
-  const formatDate = (timestamp: number) => {
-    return new Date(timestamp).toLocaleString('pt-BR');
-  };
-
-  const formatSpeed = (speed: number) => {
-    return `${speed.toFixed(1)} km/h`;
-  };
-
-  const formatDistance = (distance: number) => {
-    return `${(distance / 1000).toFixed(2)} km`;
-  };
-
   return (
     <>
       <div 
+        className="bg-neutral-900/90 rounded-xl border border-primary-900/50 p-4 hover:border-primary-700/50 transition-colors cursor-pointer"
         onClick={() => setIsMapOpen(true)}
-        className="bg-gray-900 rounded-xl shadow-lg hover:shadow-blue-500/20 transition-all cursor-pointer border border-gray-800 hover:border-blue-500/50"
       >
-        <div className="p-6">
-          <div className="flex justify-between items-start mb-6">
-            <div>
-              <h3 className="text-xl font-semibold text-white mb-2">
-                Sessão de Rastreamento
-              </h3>
-              <div className="space-y-1">
-                <p className="text-sm text-gray-400">
-                  Início: {formatDate(session.startTime)}
-                </p>
-                <p className="text-sm text-gray-400">
-                  Fim: {formatDate(session.endTime)}
-                </p>
-                <p className="text-sm text-gray-400">
-                  Registros: <span className="text-blue-400">{session.locations.length}</span>
-                </p>
-              </div>
-            </div>
+        <div className="flex justify-between items-start mb-4">
+          <div>
+            <h3 className="text-lg font-semibold text-white">
+              {formatDate(session.startTime)}
+            </h3>
+            <p className="text-primary-400 mt-1">
+              {formatDuration(session.startTime, session.endTime)}
+            </p>
           </div>
+        </div>
 
-          <div className="grid grid-cols-3 gap-6">
-            <div className="bg-gray-800/50 p-4 rounded-lg border border-gray-700">
-              <p className="text-sm text-gray-400 mb-1">
-                Velocidade Média
-              </p>
-              <p className="text-2xl font-bold text-blue-400">
-                {formatSpeed(session.averageSpeed)}
-              </p>
-            </div>
-            <div className="bg-gray-800/50 p-4 rounded-lg border border-gray-700">
-              <p className="text-sm text-gray-400 mb-1">
-                Velocidade Máxima
-              </p>
-              <p className="text-2xl font-bold text-blue-400">
-                {formatSpeed(session.maxSpeed)}
-              </p>
-            </div>
-            <div className="bg-gray-800/50 p-4 rounded-lg border border-gray-700">
-              <p className="text-sm text-gray-400 mb-1">
-                Distância Total
-              </p>
-              <p className="text-2xl font-bold text-blue-400">
-                {formatDistance(session.distance)}
-              </p>
-            </div>
+        <div className="grid grid-cols-3 gap-4">
+          <div>
+            <p className="text-gray-400 text-sm">Velocidade Média</p>
+            <p className="text-primary-400 text-lg font-semibold mt-1">
+              {formatSpeed(session.averageSpeed)}
+            </p>
+          </div>
+          <div>
+            <p className="text-gray-400 text-sm">Velocidade Máxima</p>
+            <p className="text-primary-400 text-lg font-semibold mt-1">
+              {formatSpeed(session.maxSpeed)}
+            </p>
+          </div>
+          <div>
+            <p className="text-gray-400 text-sm">Distância Total</p>
+            <p className="text-primary-400 text-lg font-semibold mt-1">
+              {formatDistance(session.distance)}
+            </p>
           </div>
         </div>
       </div>
