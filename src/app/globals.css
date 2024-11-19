@@ -4,8 +4,32 @@
 
 @layer base {
   body {
-    @apply bg-neutral-950;
+    @apply bg-neutral-950 overflow-hidden;
   }
+}
+
+.scroll-container {
+  @apply overflow-y-auto overflow-x-hidden;
+  scrollbar-width: thin;
+  scrollbar-color: theme('colors.primary.600') theme('colors.neutral.900');
+}
+
+.scroll-container::-webkit-scrollbar {
+  width: 6px;
+}
+
+.scroll-container::-webkit-scrollbar-track {
+  background: theme('colors.neutral.900');
+  border-radius: 3px;
+}
+
+.scroll-container::-webkit-scrollbar-thumb {
+  background-color: theme('colors.primary.600');
+  border-radius: 3px;
+}
+
+.modal-sidebar {
+  height: calc(100vh - 15rem);
 }
 
 @layer utilities {
