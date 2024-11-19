@@ -140,7 +140,7 @@ export function MapComponent({ locations }: MapComponentProps) {
   }), []);
 
   const maxTrackSpeed = useMemo(() => {
-    return Math.max(...locations.map(loc => loc.speed * 3.6));
+    return Math.max(...locations.map(loc => loc.speed));
   }, [locations]);
 
   const getColorForSpeed = useCallback((speed: number): string => {
@@ -198,7 +198,7 @@ export function MapComponent({ locations }: MapComponentProps) {
     const segments: PathSegment[] = [];
     
     for (let i = 0; i < locations.length - 1; i++) {
-      const speed = locations[i].speed * 3.6;
+      const speed = locations[i].speed;
       segments.push({
         path: [
           { lat: locations[i].latitude, lng: locations[i].longitude },
@@ -214,11 +214,12 @@ export function MapComponent({ locations }: MapComponentProps) {
   const SpeedLegend = () => (
     <div className="absolute bottom-4 left-4 bg-neutral-900/90 p-3 rounded-lg border border-primary-900/50">
       <div className="space-y-2">
-        <div className="text-xs text-gray-300 font-medium">Velocidade</div>
-        <div className="flex items-center space-x-2">
+        <div className="text-xs text-gray-300 font-medium mb-1">Velocidade</div>
+        <div className="flex flex-col space-y-1">
           <div className="h-2 w-32 rounded bg-gradient-to-r from-[#22c55e] via-[#eab308] to-[#991b1b]" />
-          <div className="flex justify-between text-xs text-gray-400 w-full">
+          <div className="flex justify-between text-[10px] text-gray-400 w-32 px-0.5">
             <span>0</span>
+            <span>{Math.round(maxTrackSpeed/2)} km/h</span>
             <span>{Math.round(maxTrackSpeed)} km/h</span>
           </div>
         </div>

@@ -13,15 +13,13 @@ export function formatSpeed(kmh: number | undefined | null): string {
 
 export function formatDate(timestamp: number): string {
   const date = new Date(timestamp);
-  return new Intl.DateTimeFormat('pt-BR', {
+  return date.toLocaleDateString('pt-BR', {
     day: '2-digit',
     month: '2-digit',
     year: 'numeric',
     hour: '2-digit',
-    minute: '2-digit',
-    second: '2-digit',
-    hour12: false
-  }).format(date);
+    minute: '2-digit'
+  });
 }
 
 export function formatDuration(startTime: number, endTime: number): string {

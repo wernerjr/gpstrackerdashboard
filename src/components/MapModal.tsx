@@ -6,7 +6,7 @@ interface MapModalProps {
   isOpen: boolean;
   onClose: () => void;
   locations: LocationRecord[];
-  startTime: Date;
+  startTime: number;
   maxSpeed: number;
   averageSpeed: number;
   distance: number;
@@ -96,7 +96,7 @@ export function MapModal({ isOpen, onClose, locations, startTime, maxSpeed, aver
                         Long: {location.longitude.toFixed(6)}
                       </p>
                       <p className="text-xs text-primary-400 mt-1">
-                        {formatSpeed(location.speed * 3.6)}
+                        {formatSpeed(location.speed)}
                       </p>
                     </div>
                   ))}
