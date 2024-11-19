@@ -30,21 +30,21 @@ export function SessionCard({ session }: SessionCardProps) {
         </div>
 
         <div className="grid grid-cols-3 gap-4">
-          <div>
+          <div className="flex flex-col justify-between">
             <p className="text-gray-400 text-sm">Velocidade Média</p>
-            <p className="text-primary-400 text-lg font-semibold mt-1">
+            <p className="text-primary-400 text-lg font-semibold">
               {formatSpeed(session.averageSpeed)}
             </p>
           </div>
-          <div>
+          <div className="flex flex-col justify-between">
             <p className="text-gray-400 text-sm">Velocidade Máxima</p>
-            <p className="text-primary-400 text-lg font-semibold mt-1">
+            <p className="text-primary-400 text-lg font-semibold">
               {formatSpeed(session.maxSpeed)}
             </p>
           </div>
-          <div>
+          <div className="flex flex-col justify-between">
             <p className="text-gray-400 text-sm">Distância Total</p>
-            <p className="text-primary-400 text-lg font-semibold mt-1">
+            <p className="text-primary-400 text-lg font-semibold">
               {formatDistance(session.distance)}
             </p>
           </div>
