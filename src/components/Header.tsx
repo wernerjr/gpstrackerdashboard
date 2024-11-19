@@ -32,8 +32,8 @@ export function Header({ onDataChange }: HeaderProps) {
       });
 
       const docsToRemove = Array.from(sessionMap.entries())
-        .filter(([_, locs]) => locs.length < 10)
-        .flatMap(([_, locs]) => locs.map(loc => loc.docId));
+        .filter(([, locs]) => locs.length < 10)
+        .flatMap(([, locs]) => locs.map(loc => loc.docId));
 
       for (const docId of docsToRemove) {
         await deleteDoc(doc(db, 'locations', docId));

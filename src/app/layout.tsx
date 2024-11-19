@@ -1,8 +1,5 @@
 import type { Metadata } from 'next'
-import { Inter } from 'next/font/google'
 import './globals.css'
-
-const inter = Inter({ subsets: ['latin'] })
 
 export const metadata: Metadata = {
   title: 'GPS Dashboard',
@@ -26,7 +23,7 @@ export default function RootLayout({
 
   return (
     <html lang="pt" suppressHydrationWarning>
-      <body suppressHydrationWarning>
+      <body className="bg-gray-950" suppressHydrationWarning>
         {children}
       </body>
     </html>

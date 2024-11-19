@@ -1,31 +1,17 @@
 'use client';
 
-import { collection, query, orderBy, getDocs, deleteDoc, doc } from 'firebase/firestore';
-import { useEffect, useState } from 'react';
+import { collection, query, orderBy, getDocs } from 'firebase/firestore';
+import { useEffect, useState, useCallback } from 'react';
 import { db } from '@/lib/firebase';
-import { LocationRecord } from '@/types/location';
-import { Loading } from './Loading';
+import { LocationRecord, TrackingSession } from '@/types/location';
 import { SessionCard } from './SessionCard';
+import { Loading } from './Loading';
 
-interface ProcessedSession {
-  guid: string;
-  startTime: number;
-  endTime: number;
-  averageSpeed: number;
-  maxSpeed: number;
-  distance: number;
-  locations: LocationRecord[];
-}
-
-interface TrackingSessionsProps {
-  onLoadingChange: (isLoading: boolean) => void;
-}
-
-export function TrackingSessions({ onLoadingChange }: TrackingSessionsProps) {
-  const [sessions, setSessions] = useState<ProcessedSession[]>([]);
+export function TrackingSessions() {
+  const [sessions, setSessions] = useState<TrackingSession[]>([]);
   const [loading, setLoading] = useState(true);
 
-  const processLocations = (locations: LocationRecord[]): ProcessedSession[] => {
+  const processLocations = useCallback((locations: LocationRecord[]): TrackingSession[] => {
     const sessionMap = new Map<string, LocationRecord[]>();
     
     locations.forEach(location => {
@@ -35,36 +21,39 @@ export function TrackingSessions({ onLoadingChange }: TrackingSessionsProps) {
     });
 
     return Array.from(sessionMap.entries())
-      .filter(([_, locs]) => locs.length > 1)
-      .map(([guid, locs]) => {
-        const sortedLocations = locs.sort((a, b) => a.timestamp - b.timestamp);
-        
-        const speeds = sortedLocations.map(loc => loc.speed);
-        const maxSpeed = Math.max(...speeds);
-        const averageSpeed = speeds.reduce((a, b) => a + b, 0) / speeds.length;
+      .map(([, sessionLocations]) => {
+        const sortedLocations = sessionLocations.sort((a, b) => a.timestamp - b.timestamp);
         
         let totalDistance = 0;
+        let maxSpeed = 0;
+        let totalSpeed = 0;
+
         for (let i = 1; i < sortedLocations.length; i++) {
           const prev = sortedLocations[i - 1];
           const curr = sortedLocations[i];
+          
           totalDistance += calculateDistance(
-            prev.latitude, prev.longitude,
-            curr.latitude, curr.longitude
+            prev.latitude,
+            prev.longitude,
+            curr.latitude,
+            curr.longitude
           );
+
+          maxSpeed = Math.max(maxSpeed, curr.speed);
+          totalSpeed += curr.speed;
         }
 
         return {
-          guid,
+          locations: sortedLocations,
           startTime: sortedLocations[0].timestamp,
           endTime: sortedLocations[sortedLocations.length - 1].timestamp,
-          averageSpeed,
-          maxSpeed,
           distance: totalDistance,
-          locations: sortedLocations
+          maxSpeed: maxSpeed * 3.6, // Convertendo para km/h
+          averageSpeed: (totalSpeed / sortedLocations.length) * 3.6 // Convertendo para km/h
         };
       })
       .sort((a, b) => b.startTime - a.startTime);
-  };
+  }, []);
 
   const calculateDistance = (lat1: number, lon1: number, lat2: number, lon2: number): number => {
     const R = 6371e3;
@@ -100,12 +89,11 @@ export function TrackingSessions({ onLoadingChange }: TrackingSessionsProps) {
         console.error('Erro ao buscar localizações:', error);
       } finally {
         setLoading(false);
-        onLoadingChange(false);
       }
     }
 
     fetchLocations();
-  }, [onLoadingChange]);
+  }, [processLocations]);
 
   if (loading) {
     return <Loading />;

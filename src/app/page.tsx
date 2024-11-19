@@ -4,14 +4,11 @@ import { useState } from 'react';
 import { LoadScript } from '@react-google-maps/api';
 import { TrackingSessions } from '@/components/TrackingSessions';
 import { Header } from '@/components/Header';
-import { Loading } from '@/components/Loading';
 
 export default function Dashboard() {
   const [refreshKey, setRefreshKey] = useState(0);
-  const [isLoading, setIsLoading] = useState(true);
 
   const handleDataChange = () => {
-    setIsLoading(true);
     setRefreshKey(prev => prev + 1);
   };
 
@@ -26,7 +23,6 @@ export default function Dashboard() {
           
           <TrackingSessions 
             key={refreshKey} 
-            onLoadingChange={setIsLoading}
           />
         </div>
       </LoadScript>
