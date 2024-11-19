@@ -13,28 +13,66 @@ const mapContainerStyle = {
 };
 
 const mapOptions = {
-  disableDefaultUI: false,
-  zoomControl: true,
-  mapTypeControl: true,
+  mapTypeId: 'roadmap',
+  mapTypeControl: false,
   streetViewControl: false,
-  fullscreenControl: true,
+  fullscreenControl: false,
+  zoomControl: true,
   styles: [
+    { elementType: "geometry", stylers: [{ color: "#242f3e" }] },
+    { elementType: "labels.text.stroke", stylers: [{ color: "#242f3e" }] },
+    { elementType: "labels.text.fill", stylers: [{ color: "#746855" }] },
     {
-      featureType: 'all',
-      elementType: 'geometry',
-      stylers: [{ color: '#242f3e' }]
+      featureType: "administrative.locality",
+      elementType: "labels.text.fill",
+      stylers: [{ color: "#d59563" }],
     },
     {
-      featureType: 'all',
-      elementType: 'labels.text.stroke',
-      stylers: [{ color: '#242f3e' }]
+      featureType: "road",
+      elementType: "geometry",
+      stylers: [{ color: "#38414e" }],
     },
     {
-      featureType: 'all',
-      elementType: 'labels.text.fill',
-      stylers: [{ color: '#746855' }]
-    }
-  ]
+      featureType: "road",
+      elementType: "geometry.stroke",
+      stylers: [{ color: "#212a37" }],
+    },
+    {
+      featureType: "road",
+      elementType: "labels.text.fill",
+      stylers: [{ color: "#9ca5b3" }],
+    },
+    {
+      featureType: "road.highway",
+      elementType: "geometry",
+      stylers: [{ color: "#746855" }],
+    },
+    {
+      featureType: "road.highway",
+      elementType: "geometry.stroke",
+      stylers: [{ color: "#1f2835" }],
+    },
+    {
+      featureType: "road.highway",
+      elementType: "labels.text.fill",
+      stylers: [{ color: "#f3d19c" }],
+    },
+    {
+      featureType: "water",
+      elementType: "geometry",
+      stylers: [{ color: "#17263c" }],
+    },
+    {
+      featureType: "water",
+      elementType: "labels.text.fill",
+      stylers: [{ color: "#515c6d" }],
+    },
+    {
+      featureType: "water",
+      elementType: "labels.text.stroke",
+      stylers: [{ color: "#17263c" }],
+    },
+  ],
 };
 
 export function MapComponent({ locations }: MapComponentProps) {
@@ -65,7 +103,8 @@ export function MapComponent({ locations }: MapComponentProps) {
           options={{
             strokeColor: '#3b82f6',
             strokeOpacity: 1.0,
-            strokeWeight: 3,
+            strokeWeight: 4,
+            geodesic: true
           }}
         />
         <Marker 
@@ -76,7 +115,12 @@ export function MapComponent({ locations }: MapComponentProps) {
             color: "white"
           }}
           icon={{
-            url: "https://maps.google.com/mapfiles/ms/icons/green-dot.png"
+            path: google.maps.SymbolPath.CIRCLE,
+            scale: 8,
+            fillColor: "#22c55e",
+            fillOpacity: 1,
+            strokeWeight: 2,
+            strokeColor: "#ffffff",
           }}
         />
         <Marker 
@@ -87,7 +131,12 @@ export function MapComponent({ locations }: MapComponentProps) {
             color: "white"
           }}
           icon={{
-            url: "https://maps.google.com/mapfiles/ms/icons/red-dot.png"
+            path: google.maps.SymbolPath.CIRCLE,
+            scale: 8,
+            fillColor: "#ef4444",
+            fillOpacity: 1,
+            strokeWeight: 2,
+            strokeColor: "#ffffff",
           }}
         />
       </GoogleMap>
